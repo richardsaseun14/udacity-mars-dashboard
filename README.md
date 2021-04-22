@@ -12,11 +12,11 @@ We have supplied some of the foundational code for you. So follow these steps to
 
 1. We'll start with the typical setup - clone theis repo and install the dependencies
 
- - [ ] To clone the repo, remember to clone just the starter branch:
+ - [x] To clone the repo, remember to clone just the starter branch:
 
 ```git clone --single-branch --branch starter <repo-name>```
 
- - [ ] For this project we are using yarn as our package manager, so to install your depencies run:
+ - [x] For this project we are using yarn as our package manager, so to install your depencies run:
 
 ```yarn install``` 
 
@@ -67,6 +67,3 @@ Some ideas might be to incorporate the Astronomy Photo of the Day into your desi
 ### Design
 
 Create an image gallery slider, put a full page background image, code some falling asteroids with css animations ... the visual design of this UI is up to you! There is a lot of awesome dashboard design inspiration out there. You have already been given a good start with a mobile-first stylesheet already set up for you. 
-
-
-
