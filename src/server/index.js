@@ -19,8 +19,8 @@ app.get("/apod", async (req, res) => {
 	let url = "https://api.nasa.gov/planetary/"
 
 	try {
-		let image = await fetch(`h${url}apod?api_key=${process.env.API_KEY}`).then((res) => res.json())
-		console.log("freak")
+		let image = await fetch(`${url}apod?api_key=${process.env.API_KEY}`).then((res) => res.json())
+		console.error("fetch apod image")
 		res.send({ image })
 	} catch (err) {
 		console.log("error:", err)
