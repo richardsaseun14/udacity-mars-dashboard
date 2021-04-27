@@ -1,47 +1,88 @@
 let store = Immutable.Map({
-	user: Immutable.Map({ name: "Richard" }),
 	apod: Immutable.Map({}),
-	rovers: Immutable.List(["Curiosity", "Opportunity", "Spirit"]),
+	user: Immutable.Map({ name: "Richard" }),
+	roverInfo: Immutable.Map({}),
+	selectedRover: "Spirit",
+	rovers: Immutable.List(["Spirit", "Opportunity", "Curiosity"]),
 })
 
 // add our markup to the page
 const root = document.getElementById("root")
 
 const updateStore = (store, newState) => {
-	store = store.mergeDeep(newState)
-	render(root, store)
+	const updatedStore = store.mergeDeep(newState)
+	render(root, updatedStore)
 }
 
 const render = async (root, state) => {
 	root.innerHTML = App(state)
 }
 
-// create content
+//------------------COMPONENTS
+
+//Navigation Component
+const Navigation = (state) => {
+	const rovers = state.get("rovers")
+	return `
+		<header>
+					<div class="tab">
+					${rovers
+						.map((rover) => {
+							return `<button class="tablinks" onClick="getRover(store, '${rover}')">${rover}</button>`
+						})
+						.join("")}
+					</div>
+				</header>
+	`
+}
+
+// RoverInfo component
+const RoverInfo = (roverInfo) => {
+	if (roverInfo.isEmpty()) {
+		return `<p>Loading...</p>`
+	}
+	return `
+		<section>
+      <h3>${roverInfo.get("name")}</h3>
+                <p>Landing Date: ${roverInfo.get("landing_date")}</p>
+                <p>Launch Date: ${roverInfo.get("launch_date")}</p>
+								<p>Status: ${roverInfo.get("status")}</p>
+								<p>Total Images: ${roverInfo.get("total_photos")}</p>
+            </section>
+	`
+}
+
+//Main component
+const HomePage = (state) => {
+	// const roverInfo = state.get("roverInfo")
+	return `
+		<main>
+						${Greeting(state.get("user").get("name"))}
+						${RoverInfo(state.get("roverInfo"))}      
+        </main>
+	`
+}
+
+//Page Component
+//Higher Order Function
+const Layout = (state, header, main) => {
+	return `
+		${header(state)}
+		${main(state)}
+		<footer>Built by Richard</footer>
+	`
+}
+
+// App Content
 const App = (state) => {
 	return `
-        <header></header>
-        <main>
-            ${Greeting(state.get("user").get("name"))}
-            <section>
-                <h3>Put things on the page!</h3>
-                <p>Here is an example section.</p>
-                <p>
-                    One of the most popular websites at NASA is the Astronomy Picture of the Day. In fact, this website is one of
-                    the most popular websites across all federal agencies. It has the popular appeal of a Justin Bieber video.
-                    This endpoint structures the APOD imagery and associated metadata so that it can be repurposed for other
-                    applications. In addition, if the concept_tags parameter is set to True, then keywords derived from the image
-                    explanation are returned. These keywords could be used as auto-generated hashtags for twitter or instagram feeds;
-                    but generally help with discoverability of relevant imagery.
-                </p>
-                ${ImageOfTheDay(state.get("apod"))}
-            </section>
-        </main>
-        <footer></footer>
+				${Layout(state, Navigation, HomePage)}
     `
 }
 
 // listening for load event because page should load before any JS is called
 window.addEventListener("load", () => {
+	getRover(store, store.get("selectedRover"))
 	render(root, store)
 })
 
@@ -89,8 +130,21 @@ const ImageOfTheDay = (apod) => {
 // ------------------------------------------------------  API CALLS
 
 // Example API call
+// get Rover information api call
+const getRover = (state, rover) => {
+	fetch(`http://localhost:3000/rover/${rover}`)
+		.then((res) => res.json())
+		.then((roverInformation) =>
+			// console.log("rover:", roverInformation.rover)
+			updateStore(state, {
+				selectedRover: rover,
+				roverInfo: Immutable.Map(roverInformation.rover),
+			})
+		)
+}
+
 const getImageOfTheDay = (state) => {
 	fetch(`http://localhost:3000/apod`)
 		.then((res) => res.json())
-		.then((apod) => updateStore(store, { apod: Immutable.Map(apod) }))
+		.then((apod) => updateStore(state, { apod: Immutable.Map(apod) }))
 }
