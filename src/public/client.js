@@ -1,5 +1,5 @@
 let store = Immutable.Map({
-	apod: Immutable.Map({}),
+	// apod: Immutable.Map({}),
 	user: Immutable.Map({ name: "Richard" }),
 	roverInfo: Immutable.Map({}),
 	selectedRover: "Spirit",
@@ -42,6 +42,9 @@ const RoverInfo = (roverInfo) => {
 		return `<p>Loading...</p>`
 	}
 	return `
+	<section>
+		<img src=""/>
+	</section>
 		<section>
       <h3>${roverInfo.get("name")}</h3>
                 <p>Landing Date: ${roverInfo.get("landing_date")}</p>
@@ -100,33 +103,6 @@ const Greeting = (name) => {
     `
 }
 
-// Example of a pure function that renders infomation requested from the backend
-const ImageOfTheDay = (apod) => {
-	// If image does not already exist, or it is not from today -- request it again
-	// const today = new Date()
-	// const photodate = new Date(apod.get("date"))
-	// console.log(photodate.getDate(), today.getDate())
-
-	// console.log(photodate.getDate() === today.getDate())
-	// if (!apod || apod.get("date") === today.getDate()) {
-	getImageOfTheDay(store)
-	// }
-
-	// check if the photo of the day is actually type video!
-	if (apod.media_type === "video") {
-		return `
-            <p>See today's featured video <a href="${apod.url}">here</a></p>
-            <p>${apod.title}</p>
-            <p>${apod.explanation}</p>
-        `
-	} else {
-		return `
-            <img src="${apod.get("image").url}" height="350px" width="100%" />
-            <p>${apod.get("image").explanation}</p>
-        `
-	}
-}
-
 // ------------------------------------------------------  API CALLS
 
 // Example API call
@@ -141,10 +117,20 @@ const getRover = (state, rover) => {
 				roverInfo: Immutable.Map(roverInformation.rover),
 			})
 		)
+	getRoverImages(state, rover)
 }
 
-const getImageOfTheDay = (state) => {
-	fetch(`http://localhost:3000/apod`)
+const getRoverImages = (state, rover) => {
+	fetch(`http://localhost:3000/rover/images/${rover}`)
 		.then((res) => res.json())
-		.then((apod) => updateStore(state, { apod: Immutable.Map(apod) }))
+		.then((roverImages) =>
+			updateStore(state, {
+				roverImages: Immutable.List(roverImages.photos),
+			})
+		)
 }
+// const getImageOfTheDay = (state) => {
+// 	fetch(`http://localhost:3000/apod`)
+// 		.then((res) => res.json())
+// 		.then((apod) => updateStore(state, { apod: Immutable.Map(apod) }))
+// }
